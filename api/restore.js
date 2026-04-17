@@ -18,7 +18,7 @@ NEGATIVE INSTRUCTIONS: No new background. No background change. No overly dramat
 
   try {
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/odels/gemini-2.0-flash-preview-image-generation:generateContent?key={apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
