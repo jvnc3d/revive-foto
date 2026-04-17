@@ -1,0 +1,336 @@
+cat > /home/claude/index.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0c0b09">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Revive">
+<link rel="manifest" href="manifest.json">
+<title>Revive — Restaure suas fotos com IA</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#0c0b09;color:#f0ead8;min-height:100vh;overscroll-behavior:none}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:0.5px solid rgba(240,234,216,0.1)}
+.logo{font-family:'DM Serif Display',serif;font-size:22px;color:#e8c97a;letter-spacing:0.02em}
+.nav-tag{font-size:11px;color:rgba(240,234,216,0.35);letter-spacing:0.08em;text-transform:uppercase}
+.hero{text-align:center;padding:48px 24px 32px}
+.badge{display:inline-block;background:rgba(232,201,122,0.1);border:0.5px solid rgba(232,201,122,0.3);color:#e8c97a;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 12px;border-radius:100px;margin-bottom:16px}
+.hero h1{font-family:'DM Serif Display',serif;font-size:clamp(32px,8vw,56px);line-height:1.1;color:#f0ead8;margin-bottom:12px}
+.hero h1 em{font-style:italic;color:#e8c97a}
+.hero p{font-size:15px;color:rgba(240,234,216,0.45);max-width:340px;margin:0 auto 32px;line-height:1.6;font-weight:300}
+.main{padding:0 16px 80px;max-width:480px;margin:0 auto}
+.panel{background:rgba(240,234,216,0.03);border:0.5px solid rgba(240,234,216,0.1);border-radius:16px;overflow:hidden;margin-bottom:16px}
+.panel-header{padding:12px 18px;border-bottom:0.5px solid rgba(240,234,216,0.08);display:flex;align-items:center;gap:8px}
+.panel-dot{width:7px;height:7px;border-radius:50%;background:#e8c97a;opacity:0.6}
+.panel-dot.green{background:#4ade80}
+.panel-title{font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(240,234,216,0.35);font-weight:500}
+.upload-zone{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;cursor:pointer;padding:24px;transition:background 0.2s;position:relative}
+.upload-zone:active{background:rgba(240,234,216,0.04)}
+.upload-icon{width:52px;height:52px;border:1.5px solid rgba(240,234,216,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.upload-icon svg{width:22px;height:22px;stroke:rgba(240,234,216,0.35);fill:none;stroke-width:1.5}
+.upload-text{font-size:14px;color:rgba(240,234,216,0.4);text-align:center;line-height:1.6}
+.upload-sub{font-size:12px;color:rgba(240,234,216,0.2);margin-top:4px}
+#preview-img{width:100%;border-radius:8px;display:none;max-height:300px;object-fit:contain}
+#file-input{display:none}
+.result-zone{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:12px}
+.result-placeholder{text-align:center}
+.result-placeholder p{font-size:13px;color:rgba(240,234,216,0.2);line-height:1.6}
+#result-img{width:100%;border-radius:8px;display:none;max-height:300px;object-fit:contain}
+.btn{width:100%;padding:15px;background:#e8c97a;color:#0c0b09;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:opacity 0.2s;letter-spacing:0.02em}
+.btn:active{opacity:0.8}
+.btn:disabled{opacity:0.3;cursor:default}
+.btn-ghost{background:transparent;color:rgba(240,234,216,0.5);border:0.5px solid rgba(240,234,216,0.15);margin-top:8px}
+.btn-ghost:active{background:rgba(240,234,216,0.05)}
+.cta-area{padding:16px}
+.features{display:flex;justify-content:center;gap:28px;margin:24px auto;padding:0 16px;max-width:340px}
+.feature{text-align:center}
+.feature-num{font-family:'DM Serif Display',serif;font-size:26px;color:#e8c97a;display:block}
+.feature-label{font-size:11px;color:rgba(240,234,216,0.3);text-transform:uppercase;letter-spacing:0.07em}
+
+/* MODAL ANUNCIO */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.modal-overlay.active{display:flex}
+.modal-box{background:#161410;border:0.5px solid rgba(240,234,216,0.12);border-radius:20px;width:100%;max-width:400px;overflow:hidden}
+.modal-top{padding:20px 24px 16px;border-bottom:0.5px solid rgba(240,234,216,0.08);text-align:center}
+.modal-label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(240,234,216,0.3);margin-bottom:8px}
+.modal-title{font-family:'DM Serif Display',serif;font-size:20px;color:#f0ead8}
+.ad-space{background:rgba(240,234,216,0.03);border:0.5px dashed rgba(240,234,216,0.1);margin:16px;border-radius:12px;height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.ad-space p{font-size:11px;color:rgba(240,234,216,0.2);letter-spacing:0.06em;text-transform:uppercase}
+.modal-footer{padding:16px 20px 20px}
+.countdown-bar{height:3px;background:rgba(240,234,216,0.08);border-radius:100px;margin-bottom:14px;overflow:hidden}
+.countdown-fill{height:100%;background:#e8c97a;border-radius:100px;width:100%;transition:width 1s linear}
+.countdown-text{font-size:13px;color:rgba(240,234,216,0.4);text-align:center;margin-bottom:14px}
+.countdown-text span{color:#e8c97a;font-weight:500}
+
+/* LOADING */
+.loading-zone{display:none;flex-direction:column;align-items:center;gap:16px;padding:32px 24px;text-align:center}
+.spinner{width:40px;height:40px;border:2px solid rgba(240,234,216,0.1);border-top-color:#e8c97a;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:rgba(240,234,216,0.4);line-height:1.6}
+.loading-sub{font-size:12px;color:rgba(240,234,216,0.2)}
+
+.error-msg{background:rgba(220,50,50,0.1);border:0.5px solid rgba(220,50,50,0.3);color:#f87171;font-size:13px;padding:12px 16px;border-radius:8px;margin:12px 16px;display:none;line-height:1.5}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="logo">Revive</span>
+  <span class="nav-tag">IA · Gratuito</span>
+</nav>
+
+<div class="hero">
+  <span class="badge">Powered by Gemini AI</span>
+  <h1>Suas fotos antigas,<br><em>revividas</em></h1>
+  <p>Envie uma foto e nossa IA restaura, colore e devolve com qualidade cinematográfica — em segundos.</p>
+</div>
+
+<div class="main">
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-dot"></div>
+      <span class="panel-title">Foto original</span>
+    </div>
+    <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+      <div class="upload-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
+      <div>
+        <p class="upload-text">Toque para selecionar<br>da galeria ou câmera</p>
+        <p class="upload-sub">JPG, PNG · máx. 10MB</p>
+      </div>
+      <img id="preview-img" alt="Preview">
+    </div>
+    <input type="file" id="file-input" accept="image/*" capture="environment">
+    <div class="cta-area">
+      <button class="btn" id="btn-restore" disabled onclick="startProcess()">Restaurar foto</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-dot green"></div>
+      <span class="panel-title">Foto restaurada</span>
+    </div>
+    <div class="result-zone" id="result-zone">
+      <div class="loading-zone" id="loading-zone">
+        <div class="spinner"></div>
+        <p class="loading-text">Restaurando sua foto<br>com Gemini AI...</p>
+        <p class="loading-sub">Aguarde o anúncio terminar</p>
+      </div>
+      <div class="result-placeholder" id="result-placeholder">
+        <p>Seu resultado aparecerá<br>aqui após a restauração</p>
+      </div>
+      <img id="result-img" alt="Foto restaurada">
+    </div>
+    <div class="error-msg" id="error-msg"></div>
+    <div class="cta-area">
+      <button class="btn" id="btn-download" disabled onclick="downloadResult()">Baixar foto restaurada</button>
+      <button class="btn btn-ghost" id="btn-new" onclick="resetApp()">Restaurar outra foto</button>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feature"><span class="feature-num">4K</span><span class="feature-label">Resolução</span></div>
+    <div class="feature"><span class="feature-num">~15s</span><span class="feature-label">Tempo médio</span></div>
+    <div class="feature"><span class="feature-num">100%</span><span class="feature-label">Gratuito</span></div>
+  </div>
+
+</div>
+
+<!-- MODAL ANUNCIO -->
+<div class="modal-overlay" id="modal-ad">
+  <div class="modal-box">
+    <div class="modal-top">
+      <p class="modal-label">Sua foto está sendo processada</p>
+      <p class="modal-title">Aguarde um momento ✦</p>
+    </div>
+    <div class="ad-space">
+      <!-- Cole aqui o código do seu anúncio (AdSense, Monetag, etc.) -->
+      <p>Espaço publicitário</p>
+      <p style="font-size:10px;opacity:0.5">300×200</p>
+    </div>
+    <div class="modal-footer">
+      <div class="countdown-bar"><div class="countdown-fill" id="countdown-fill"></div></div>
+      <p class="countdown-text">Liberando em <span id="countdown-num">15</span> segundos...</p>
+      <button class="btn" id="btn-get-result" disabled onclick="closeAdModal()">Ver foto restaurada</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const COUNTDOWN_SECONDS = 15;
+let selectedFile = null;
+let resultDataUrl = null;
+let adFinished = false;
+let apiFinished = false;
+let apiResultData = null;
+
+document.getElementById('file-input').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) {
+    showError('Arquivo muito grande. Máximo 10MB.');
+    return;
+  }
+  selectedFile = file;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = document.getElementById('preview-img');
+    const zone = document.getElementById('upload-zone');
+    img.src = ev.target.result;
+    img.style.display = 'block';
+    zone.querySelector('.upload-icon').style.display = 'none';
+    zone.querySelector('div:not(.upload-icon)').style.display = 'none';
+    document.getElementById('btn-restore').disabled = false;
+  };
+  reader.readAsDataURL(file);
+});
+
+function startProcess() {
+  if (!selectedFile) return;
+  document.getElementById('btn-restore').disabled = true;
+  document.getElementById('loading-zone').style.display = 'flex';
+  document.getElementById('result-placeholder').style.display = 'none';
+  document.getElementById('result-img').style.display = 'none';
+  document.getElementById('error-msg').style.display = 'none';
+  adFinished = false;
+  apiFinished = false;
+  apiResultData = null;
+  openAdModal();
+  callGeminiAPI();
+}
+
+function openAdModal() {
+  const modal = document.getElementById('modal-ad');
+  modal.classList.add('active');
+  let seconds = COUNTDOWN_SECONDS;
+  const fill = document.getElementById('countdown-fill');
+  const num = document.getElementById('countdown-num');
+  const btn = document.getElementById('btn-get-result');
+  fill.style.width = '100%';
+  num.textContent = seconds;
+  btn.disabled = true;
+  btn.textContent = 'Ver foto restaurada';
+
+  const interval = setInterval(() => {
+    seconds--;
+    num.textContent = seconds;
+    fill.style.width = ((seconds / COUNTDOWN_SECONDS) * 100) + '%';
+    if (seconds <= 0) {
+      clearInterval(interval);
+      adFinished = true;
+      checkBothReady();
+    }
+  }, 1000);
+}
+
+function checkBothReady() {
+  if (adFinished && apiFinished) {
+    const btn = document.getElementById('btn-get-result');
+    btn.disabled = false;
+    document.getElementById('countdown-text').innerHTML = '✓ Sua foto está pronta!';
+    btn.textContent = 'Ver foto restaurada →';
+  }
+}
+
+function closeAdModal() {
+  document.getElementById('modal-ad').classList.remove('active');
+  showResult();
+}
+
+async function callGeminiAPI() {
+  try {
+    const base64 = await fileToBase64(selectedFile);
+    const mimeType = selectedFile.type || 'image/jpeg';
+    const response = await fetch('/api/restore', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({image: base64, mimeType: mimeType})
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'Erro ao processar a imagem');
+    }
+    const data = await response.json();
+    apiResultData = data.image;
+    apiFinished = true;
+    checkBothReady();
+  } catch (err) {
+    document.getElementById('modal-ad').classList.remove('active');
+    document.getElementById('loading-zone').style.display = 'none';
+    document.getElementById('result-placeholder').style.display = 'block';
+    showError('Erro: ' + err.message);
+    document.getElementById('btn-restore').disabled = false;
+  }
+}
+
+function showResult() {
+  document.getElementById('loading-zone').style.display = 'none';
+  if (apiResultData) {
+    const img = document.getElementById('result-img');
+    img.src = 'data:image/png;base64,' + apiResultData;
+    img.style.display = 'block';
+    resultDataUrl = img.src;
+    document.getElementById('btn-download').disabled = false;
+  } else {
+    showError('Não foi possível obter o resultado. Tente novamente.');
+    document.getElementById('result-placeholder').style.display = 'block';
+    document.getElementById('btn-restore').disabled = false;
+  }
+}
+
+function downloadResult() {
+  if (!resultDataUrl) return;
+  const a = document.createElement('a');
+  a.href = resultDataUrl;
+  a.download = 'foto-restaurada-revive.png';
+  a.click();
+}
+
+function resetApp() {
+  selectedFile = null;
+  resultDataUrl = null;
+  document.getElementById('preview-img').style.display = 'none';
+  document.getElementById('preview-img').src = '';
+  document.getElementById('upload-zone').querySelector('.upload-icon').style.display = 'flex';
+  document.getElementById('upload-zone').querySelector('div:not(.upload-icon)').style.display = 'block';
+  document.getElementById('result-img').style.display = 'none';
+  document.getElementById('result-img').src = '';
+  document.getElementById('result-placeholder').style.display = 'block';
+  document.getElementById('loading-zone').style.display = 'none';
+  document.getElementById('btn-restore').disabled = true;
+  document.getElementById('btn-download').disabled = true;
+  document.getElementById('error-msg').style.display = 'none';
+  document.getElementById('file-input').value = '';
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
+HTMLEOF
+echo "index.html criado"
+Saída
